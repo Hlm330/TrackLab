@@ -1,0 +1,303 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0B1120">
+    <meta name="description" content="TrackLab, plateforme intelligente d'analyse, de planification et d'optimisation des entraînements d'athlétisme.">
+
+    <title>TrackLab | La donnée au service de la performance</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+
+    <script defer src="/assets/vendor/chart.umd.js"></script>
+    <script defer src="/js/geolocation.js"></script>
+    <script type="module" src="/js/app.js"></script>
+    <link rel="stylesheet" href="/css/modules.css">
+</head>
+
+<body>
+
+    <a class="skip-link" href="#main-content">
+        Accéder au contenu
+    </a>
+
+    <main id="account-screen" class="card account-screen">
+        <h1 id="account-title">Connexion à TrackLab</h1>
+        <form id="account-form" class="stack" method="post" hidden>
+            <label for="account-email">Adresse e-mail</label>
+            <input id="account-email" type="email" autocomplete="username" maxlength="254" required>
+            <label for="account-password">Mot de passe</label>
+            <input id="account-password" type="password" autocomplete="current-password" maxlength="256" required>
+            <button id="account-submit" class="button button-primary" type="submit">Se connecter</button>
+            <button id="account-toggle" class="button button-secondary" type="button">Créer un compte</button>
+        </form>
+        <p id="account-status" role="status">Vérification de la session…</p>
+    </main>
+    <div id="account-app" class="app-layout" hidden>
+
+        <!-- Navigation latérale -->
+        <aside class="sidebar" id="sidebar">
+
+            <a class="brand" href="#dashboard">
+                <img src="/assets/logo.svg" alt="" width="44" height="44">
+
+                <div>
+                    <span class="brand-name">Track<span>Lab</span></span>
+                    <span class="brand-caption">ATHLETICS INTELLIGENCE</span>
+                </div>
+            </a>
+
+            <div class="sidebar-content">
+
+                <p class="navigation-label">ESPACE SPORTIF</p>
+
+                <nav class="navigation" aria-label="Navigation principale">
+
+                    <a href="#dashboard" class="nav-link active" data-page="dashboard" aria-current="page">
+                        <span class="nav-icon" data-icon="dashboard"></span>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="#windlab" class="nav-link" data-page="windlab">
+                        <span class="nav-icon" data-icon="wind"></span>
+                        <span>WindLab</span>
+                    </a>
+
+                    <a href="#planner" class="nav-link" data-page="planner">
+                        <span class="nav-icon" data-icon="calendar"></span>
+                        <span>Session Planner</span>
+                    </a>
+
+                    <a href="#training" class="nav-link" data-page="training">
+                        <span class="nav-icon" data-icon="activity"></span>
+                        <span>Training Lab</span>
+                    </a>
+
+                </nav>
+
+                <p class="navigation-label">PERSONNALISATION</p>
+
+                <nav class="navigation" aria-label="Données et profil">
+
+                    <a href="#datahub" class="nav-link" data-page="datahub">
+                        <span class="nav-icon" data-icon="database"></span>
+                        <span>Data Hub</span>
+                    </a>
+
+                    <a href="#profile" class="nav-link" data-page="profile">
+                        <span class="nav-icon" data-icon="user"></span>
+                        <span>Profil sportif</span>
+                    </a>
+
+                </nav>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <div class="connection-status">
+                    <span class="status-dot" id="server-status-dot"></span>
+                    <span id="server-status">Connexion au serveur...</span>
+                </div>
+
+                <p>TrackLab · Version 1.0.0</p>
+                <p>Conçu pour les athlètes.</p>
+
+            </div>
+
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
+
+        <!-- Espace principal -->
+        <div class="workspace">
+
+            <header class="topbar">
+
+                <div class="topbar-left">
+
+                    <button class="icon-button mobile-menu" id="menu-toggle"
+                            type="button" aria-label="Ouvrir le menu"
+                            aria-controls="sidebar" aria-expanded="false">
+                        <span data-icon="menu"></span>
+                    </button>
+
+                    <div class="breadcrumb">
+                        <span>TrackLab</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span id="breadcrumb-page">Dashboard</span>
+                    </div>
+
+                </div>
+
+                <div class="topbar-actions">
+                    <button id="account-import" type="button" class="button button-secondary button-small" hidden>Importer les anciennes données</button>
+                    <button id="account-logout" type="button" class="button button-secondary button-small">Se déconnecter</button>
+
+                    <a href="#profile" class="location-button">
+                        <span data-icon="location"></span>
+                        <span id="header-location">Choisir une ville</span>
+                    </a>
+
+                    <button type="button" class="icon-button"
+                            id="refresh-button" aria-label="Actualiser les données"
+                            title="Actualiser les données">
+                        <span data-icon="refresh"></span>
+                    </button>
+
+                    <a href="#profile" class="avatar"
+                       aria-label="Accéder au profil sportif"
+                       id="header-avatar">TL</a>
+
+                </div>
+
+            </header>
+
+            <main class="main-content" id="main-content" tabindex="-1">
+
+                <div id="global-notice" class="notice" role="status" hidden></div>
+
+                <!-- Dashboard -->
+                <section class="page" id="page-dashboard">
+
+                    <header class="page-heading">
+                        <span class="eyebrow">VOTRE ESPACE SPORTIF</span>
+                        <h1>Tableau de bord</h1>
+                        <p>
+                            Retrouvez une synthèse de vos conditions d'entraînement,
+                            de votre préparation sportive et des facteurs susceptibles
+                            d'influencer votre prochaine séance.
+                        </p>
+                    </header>
+
+                    <div id="dashboard-content" class="page-content">
+                        <div class="loading-state">
+                            <span class="spinner"></span>
+                            <p>Initialisation du tableau de bord...</p>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- WindLab -->
+                <section class="page" id="page-windlab" hidden>
+
+                    <header class="page-heading">
+                        <span class="eyebrow">ANALYSE ENVIRONNEMENTALE</span>
+                        <h1>WindLab<span class="heading-accent">.</span></h1>
+                        <p>
+                            Analysez l'influence du vent sur votre discipline.
+                            Visualisez ses composantes longitudinale et latérale,
+                            ajustez votre direction de course et identifiez les
+                            contraintes techniques et réglementaires.
+                        </p>
+                    </header>
+
+                    <div id="windlab-content" class="page-content"></div>
+
+                </section>
+
+                <!-- Session Planner -->
+                <section class="page" id="page-planner" hidden>
+
+                    <header class="page-heading">
+                        <span class="eyebrow">PLANIFICATION INTELLIGENTE</span>
+                        <h1>Session Planner<span class="heading-accent">.</span></h1>
+                        <p>
+                            Comparez les prochains créneaux d'entraînement selon
+                            les prévisions météorologiques, la qualité de l'air,
+                            le vent et votre objectif sportif afin d'identifier
+                            les conditions les plus adaptées à votre séance.
+                        </p>
+                    </header>
+
+                    <div id="planner-content" class="page-content"></div>
+
+                </section>
+
+                <!-- Training Lab -->
+                <section class="page" id="page-training" hidden>
+
+                    <header class="page-heading">
+                        <span class="eyebrow">PRÉPARATION ET RÉCUPÉRATION</span>
+                        <h1>Training Lab<span class="heading-accent">.</span></h1>
+                        <p>
+                            Analysez vos indicateurs de préparation, renseignez
+                            vos sensations, enregistrez vos entraînements et
+                            suivez l'évolution de votre charge sportive sur
+                            les sept et vingt-huit derniers jours.
+                        </p>
+                    </header>
+
+                    <div id="training-content" class="page-content"></div>
+
+                </section>
+
+                <!-- Data Hub -->
+                <section class="page" id="page-datahub" hidden>
+
+                    <header class="page-heading">
+                        <span class="eyebrow">SOURCES ET DONNÉES</span>
+                        <h1>Data Hub<span class="heading-accent">.</span></h1>
+                        <p>
+                            Consultez les sources de données utilisées par TrackLab,
+                            vérifiez la disponibilité des services externes et
+                            retrouvez les informations sportives accessibles
+                            depuis votre connexion Garmin.
+                        </p>
+                    </header>
+
+                    <div id="datahub-content" class="page-content"></div>
+
+                </section>
+
+                <!-- Profil -->
+                <section class="page" id="page-profile" hidden>
+
+                    <header class="page-heading">
+                        <span class="eyebrow">VOTRE PERSONNALISATION</span>
+                        <h1>Profil sportif<span class="heading-accent">.</span></h1>
+                        <p>
+                            Personnalisez TrackLab selon votre discipline,
+                            votre localisation, vos objectifs et l'orientation
+                            de votre piste. Ces paramètres permettent d'adapter
+                            les analyses à votre pratique sportive.
+                        </p>
+                    </header>
+
+                    <div id="profile-content" class="page-content"></div>
+
+                </section>
+
+                <footer class="main-footer">
+
+                    <div>
+                        <strong>TrackLab</strong>
+                        <span>La donnée au service de la performance.</span>
+                    </div>
+
+                    <p>
+                        Les analyses sont des estimations d'aide à la décision.
+                        Elles ne remplacent ni un avis médical, ni les consignes
+                        d'un entraîneur, ni les mesures officielles de compétition.
+                    </p>
+
+                </footer>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <div id="toast-container" class="toast-container"
+         role="status" aria-live="polite"></div>
+
+    <noscript>
+        TrackLab nécessite JavaScript pour afficher et analyser les données sportives.
+    </noscript>
+
+</body>
+</html>

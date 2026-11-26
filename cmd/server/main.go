@@ -38,19 +38,12 @@ func main() {
 
 	environmentClient := api.NewClient(publicCache)
 
-	// Cache indépendant des données sportives personnelles.
-	personalCache, err := cache.New("data/personal/garmin")
-
-	if err != nil {
-		log.Fatal("Initialisation du cache personnel impossible : ", err)
-	}
-
-	garminClient := api.NewGarminClient(
-		cfg.GarminToken,
-		personalCache,
-	)
-
 	mux := http.NewServeMux()
+	accounts, err := handlers.NewAccounts("data/personal/accounts.json")
+	if err != nil {
+		log.Fatal("Initialisation des comptes impossible : ", err)
+	}
+	accounts.Register(mux)
 
 	// Routes environnementales.
 	environmentHandler := handlers.NewEnvironmentHandler(
@@ -60,11 +53,7 @@ func main() {
 	environmentHandler.Register(mux)
 
 	// Routes sportives personnelles.
-	garminHandler := handlers.NewGarminHandler(
-		garminClient,
-	)
-
-	garminHandler.Register(mux)
+	accounts.RegisterGarmin(mux)
 
 	// Routes des moteurs d'analyse sportive.
 	analysisHandler := handlers.NewAnalysisHandler()
@@ -75,10 +64,9 @@ func main() {
 		"GET /api/health",
 		func(w http.ResponseWriter, r *http.Request) {
 			handlers.JSON(w, http.StatusOK, map[string]any{
-				"application":       applicationName,
-				"version":           applicationVersion,
-				"status":            "ok",
-				"garmin_configured": garminClient.Configured(),
+				"application": applicationName,
+				"version":     applicationVersion,
+				"status":      "ok",
 			})
 		},
 	)
@@ -133,11 +121,6 @@ func main() {
 			"%s disponible sur http://%s",
 			applicationName,
 			address,
-		)
-
-		log.Printf(
-			"Garmin configuré : %t",
-			garminClient.Configured(),
 		)
 
 		err := server.ListenAndServe()
