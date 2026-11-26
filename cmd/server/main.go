@@ -66,6 +66,10 @@ func main() {
 
 	garminHandler.Register(mux)
 
+	// Routes des moteurs d'analyse sportive.
+	analysisHandler := handlers.NewAnalysisHandler()
+	analysisHandler.Register(mux)
+
 	// Route de vérification du serveur.
 	mux.HandleFunc(
 		"GET /api/health",
